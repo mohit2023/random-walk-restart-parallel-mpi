@@ -28,10 +28,8 @@ int main(int argc, char* argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    // double start=0,end=0;
     std:: fstream fs;
     if(rank==0) {
-        // start = MPI_Wtime();
         fs.open("output.dat", std::ios::out | std::ios::binary);
     }
 
@@ -56,33 +54,26 @@ int main(int argc, char* argv[]){
             randomWalk(node, adj, num_child, count, num_steps, random_generator, i);
         }
         // printf("random walk done in proc: %d for node: %d \n", rank, i);
-
-        if(rank!=0) {
-            MPI_Send(count, num_nodes, MPI_INT, 0, i, MPI_COMM_WORLD);
-        } else {
-            for(int j=0;j<size;j++) {
-                if(j==rank) {
-                    continue;
-                }
-                int *tmp = new int[num_nodes];
-                MPI_Recv (tmp, num_nodes, MPI_INT, j, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                for(int k=0;k<num_nodes;k++) {
-                    count[k]+=tmp[k];
-                }
-            }
+        int* count_global;
+        if(rank==0) {
+            count_global = new int[num_nodes];
+        }
+        MPI_Reduce(count, count_global, num_nodes, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        if(rank==0) {
+            count_global[i]=0;
             for(int k=0;k<num_child[i];k++) {
-                count[k]=0;
+                count_global[adj[i][k]]=0;
             }
 
             priority_queue<pair<int,int>> pq;
             for(int k=0;k<num_nodes;k++) {
-                if(count[k]!=0) {
+                if(count_global[k]!=0) {
                     if(pq.size() < num_rec) {
-                        pq.push({count[k],k});
+                        pq.push({count_global[k],k});
                     }
-                    else if(pq.top().first < count[k]) {
+                    else if(pq.top().first < count_global[k]) {
                         pq.pop();
-                        pq.push({count[k],k});
+                        pq.push({count_global[k],k});
                     }
                 }
             }
@@ -95,7 +86,6 @@ int main(int argc, char* argv[]){
                 result[pq.size()*2] = p.second;
                 result[pq.size()*2+1] = p.first;
             }
-
             writeOutput(fs, num_child[i], result, num_rec, num_found);
             // cout<<i<<" : "<<num_child[i]<<"\n";
             // for(int i=0;i<num_found;i++){
@@ -107,22 +97,10 @@ int main(int argc, char* argv[]){
         }
         // printf("end in proc: %d for node: %d \n", rank, i);
     }
-    
-    // if (rank != 0) {
-    //     int number = -1;
-    //     MPI_Send(&number, 1, MPI_INT, 0, num_nodes, MPI_COMM_WORLD);
-    // } else {
-    //     for(int i=1;i<size;i++) {
-    //         int number;
-    //         MPI_Recv(&number, 1, MPI_INT, i, num_nodes, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    //     }
-    // }
 
     if(rank==0){
-        fs.close();
-        // end = MPI_Wtime();
-        // printf("Work took %f seconds\n", end - start);
         // convertOutput(num_nodes, num_rec);
+        fs.close();
     }
     // print_random(rank, num_nodes, random_generator);
     
