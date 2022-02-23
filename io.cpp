@@ -21,6 +21,48 @@ int **readGraph(std::string filename, int num_nodes, int num_edges, int* num_chi
         islittleendian = true;
     }
 
+    MPI_File fh;
+    MPI_File_open(MPI_COMM_WORLD, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &fh);
+    unsigned char *buf = new unsigned char[4*num_edges*2];
+    MPI_File_read_all(fh, buf, num_edges*2, MPI_INT, MPI_STATUS_IGNORE);
+    MPI_File_close(&fh);
+    int *data = new int[num_edges*2];
+    for(int d=0; d<num_edges; d++) {
+        unsigned char buffer[4];
+        memcpy(buffer, buf+4*d*2, 4);
+        data[d*2] = convertEndian(buffer, islittleendian);
+        memcpy(buffer, buf+4*(d*2+1), 4);
+        data[d*2+1] = convertEndian(buffer, islittleendian);
+    }
+
+    for(int d=0; d<num_edges; d++) {
+        int u=data[d*2];
+        num_child[data[d*2]]++;
+    }
+
+    int **adj = new int*[num_nodes];
+    for(int i=0; i<num_nodes; i++) {
+        adj[i] = new int[num_child[i]];
+        num_child[i]=0;
+    }
+
+    for(int d=0; d<num_edges; d++) {
+        int u=data[2*d];
+        int v=data[2*d+1];
+        adj[u][num_child[u]] = v;
+        num_child[u]++;
+    }
+
+    return adj;
+}
+
+int **readGraph_basic(std::string filename, int num_nodes, int num_edges, int* num_child, int rank, int num_proc) {
+    int num = 1;
+    bool islittleendian = false;
+    if (*(char *)&num == 1) {
+        islittleendian = true;
+    }
+
     std::fstream fs(filename, std::ios::in | std::ios::binary);
     int *data = new int[num_edges*2];
     for(int d=0; d<num_edges; d++) {

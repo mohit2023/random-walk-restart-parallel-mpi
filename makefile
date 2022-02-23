@@ -10,4 +10,4 @@ priorityQueue.o:
 	mpic++ -std=c++17 -o priorityQueue.o priorityQueue.cpp
 
 clean:
-	rm wtf *.o
+	rm wtf

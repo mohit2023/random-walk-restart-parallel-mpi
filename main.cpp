@@ -37,7 +37,7 @@ int main(int argc, char* argv[]){
     int **adj = readGraph(graph_file, num_nodes, num_edges, num_child, rank, size);
     // printf("read done in proc: %d \n", rank);
 
-    for(int i=0;i<num_nodes;i++) {
+    for(int i=num_nodes;i<num_nodes;i++) {
         int total = num_walks*num_child[i];
         int per_bucket = total/size;
         int extra = total%size;
