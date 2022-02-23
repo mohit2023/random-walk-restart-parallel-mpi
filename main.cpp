@@ -6,6 +6,8 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
+    auto begin = std::chrono::high_resolution_clock::now();
+
     assert(argc > 8);
     std::string graph_file = argv[1];
     int num_nodes = std::stoi(argv[2]);
@@ -26,10 +28,10 @@ int main(int argc, char* argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    double start=0,end=0;
+    // double start=0,end=0;
     std:: fstream fs;
     if(rank==0) {
-        start = MPI_Wtime();
+        // start = MPI_Wtime();
         fs.open("output.dat", std::ios::out | std::ios::binary);
     }
 
@@ -106,24 +108,31 @@ int main(int argc, char* argv[]){
         // printf("end in proc: %d for node: %d \n", rank, i);
     }
     
-    if (rank != 0) {
-        int number = -1;
-        MPI_Send(&number, 1, MPI_INT, 0, num_nodes, MPI_COMM_WORLD);
-    } else {
-        for(int i=1;i<size;i++) {
-            int number;
-            MPI_Recv(&number, 1, MPI_INT, i, num_nodes, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        }
-    }
+    // if (rank != 0) {
+    //     int number = -1;
+    //     MPI_Send(&number, 1, MPI_INT, 0, num_nodes, MPI_COMM_WORLD);
+    // } else {
+    //     for(int i=1;i<size;i++) {
+    //         int number;
+    //         MPI_Recv(&number, 1, MPI_INT, i, num_nodes, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //     }
+    // }
 
     if(rank==0){
         fs.close();
-        end = MPI_Wtime();
-        printf("Work took %f seconds\n", end - start);
+        // end = MPI_Wtime();
+        // printf("Work took %f seconds\n", end - start);
         // convertOutput(num_nodes, num_rec);
     }
     // print_random(rank, num_nodes, random_generator);
     
     MPI_Finalize();
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    double duration = (1e-6 * (std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin)).count());
+
+    printf("Time taken by proc: %d is : %f \n", rank, duration);
+
     return 0;
 }
