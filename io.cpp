@@ -66,15 +66,48 @@ void writeOutput(std::fstream& fs, unsigned int outdegree, unsigned int *result,
     fs.write((char *)buffer, 4);
     for(int i=0;i<num_found;i++) {
         unsigned int node = result[i*2];
-        memcpy(buffer, (char*)&outdegree, sizeof(unsigned int));
+        memcpy(buffer, (char*)&node, sizeof(unsigned int));
         convertEndian(buffer, islittleendian);
         fs.write((char *)buffer, 4);
         unsigned int infs = result[i*2+1];
-        memcpy(buffer, (char*)&outdegree, sizeof(unsigned int));
+        memcpy(buffer, (char*)&infs, sizeof(unsigned int));
         convertEndian(buffer, islittleendian);
         fs.write((char *)buffer, 4);
     }
     for(int i=num_found;i<num_rec;i++) {
         fs.write("NULLNULL", 8);
+    }
+}
+
+
+void convertOutput(int num_nodes, int num_rec) {
+    int num = 1;
+    bool islittleendian = false;
+    if (*(char *)&num == 1) {
+        islittleendian = true;
+    }
+
+    std::fstream fsr("output.dat", std::ios::in | std::ios::binary);
+    std::ofstream fsw("converted.txt", std::ios::out);
+
+    for(int i=0;i<num_nodes;i++) {
+        unsigned char buffer[4];
+        fsr.read((char *)buffer, 4);
+        int num = convertEndian(buffer, islittleendian);
+        fsw<<i<<" : "<<num<<"\n";
+        for(int j=0;j<num_rec;j++) {
+            fsr.read((char *)buffer, 4);
+            if(buffer[0]=='N') {
+                fsw<<buffer[0]<<buffer[1]<<buffer[2]<<buffer[3]<<" : ";
+                fsr.read((char *)buffer, 4);
+                fsw<<buffer[0]<<buffer[1]<<buffer[2]<<buffer[3]<<"\n";
+            } else {
+                num = convertEndian(buffer, islittleendian);
+                fsw<<num<<" : ";
+                fsr.read((char *)buffer, 4);
+                num = convertEndian(buffer, islittleendian);
+                fsw<<num<<"\n";
+            }
+        }
     }
 }
