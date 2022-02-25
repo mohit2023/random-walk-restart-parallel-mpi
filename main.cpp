@@ -33,7 +33,7 @@ int main(int argc, char* argv[]){
         fs.open("output.dat", std::ios::out | std::ios::binary);
     }
 
-    int *num_child = new int[num_nodes];
+    int *num_child = new int[num_nodes]();
     int **adj = readGraph(graph_file, num_nodes, num_edges, num_child, rank, size);
     // printf("read done in proc: %d \n", rank);
     int *count = new int[num_nodes];
