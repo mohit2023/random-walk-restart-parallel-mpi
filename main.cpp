@@ -89,13 +89,13 @@ int main(int argc, char* argv[]){
                 result[pq.size()*2+1] = p.first;
             }
             writeOutput(fs, num_child[i], result, num_rec, num_found);
-            cout<<i<<" : "<<num_child[i]<<"\n";
-            for(int i=0;i<num_found;i++){
-                cout<<result[i*2]<<" : "<<result[i*2+1]<<"\n";
-            }
-            for(int i=num_found;i<num_rec;i++){
-                cout<<"NULL : NULL\n";
-            }
+            // cout<<i<<" : "<<num_child[i]<<"\n";
+            // for(int i=0;i<num_found;i++){
+            //     cout<<result[i*2]<<" : "<<result[i*2+1]<<"\n";
+            // }
+            // for(int i=num_found;i<num_rec;i++){
+            //     cout<<"NULL : NULL\n";
+            // }
             delete[] result;
         }
         // printf("end in proc: %d for node: %d \n", rank, i);
