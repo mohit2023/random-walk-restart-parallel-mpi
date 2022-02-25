@@ -36,8 +36,9 @@ int main(int argc, char* argv[]){
     int *num_child = new int[num_nodes]();
     int **adj = readGraph(graph_file, num_nodes, num_edges, num_child, rank, size);
     // printf("read done in proc: %d \n", rank);
+
     int *count = new int[num_nodes];
-    int* count_global;
+    int *count_global;
     if(rank==0) {
         count_global = new int[num_nodes];
     }
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]){
         end = end + (rank<extra ? 1 : 0);
         // printf("before in proc: %d for node: %d \n", rank, i);
 
-        memset(count, 0, num_nodes);
+        memset(count, 0, num_nodes*sizeof(int));
         for(int j=start;j<end;j++) {
             int node_index = j/num_walks;
             int node = adj[i][node_index];
@@ -66,7 +67,7 @@ int main(int argc, char* argv[]){
                 count_global[adj[i][k]]=0;
             }
 
-            priority_queue<pair<int,int>> pq;
+            priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
             for(int k=0;k<num_nodes;k++) {
                 if(count_global[k]!=0) {
                     if(pq.size() < num_rec) {
@@ -88,14 +89,14 @@ int main(int argc, char* argv[]){
                 result[pq.size()*2+1] = p.first;
             }
             writeOutput(fs, num_child[i], result, num_rec, num_found);
+            cout<<i<<" : "<<num_child[i]<<"\n";
+            for(int i=0;i<num_found;i++){
+                cout<<result[i*2]<<" : "<<result[i*2+1]<<"\n";
+            }
+            for(int i=num_found;i<num_rec;i++){
+                cout<<"NULL : NULL\n";
+            }
             delete[] result;
-            // cout<<i<<" : "<<num_child[i]<<"\n";
-            // for(int i=0;i<num_found;i++){
-            //     cout<<result[i*2]<<" : "<<result[i*2+1]<<"\n";
-            // }
-            // for(int i=num_found;i<num_rec;i++){
-            //     cout<<"NULL : NULL\n";
-            // }
         }
         // printf("end in proc: %d for node: %d \n", rank, i);
     }
