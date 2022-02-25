@@ -59,6 +59,7 @@ int main(int argc, char* argv[]){
             count_global = new int[num_nodes];
         }
         MPI_Reduce(count, count_global, num_nodes, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        delete[] count;
         if(rank==0) {
             count_global[i]=0;
             for(int k=0;k<num_child[i];k++) {
@@ -77,6 +78,7 @@ int main(int argc, char* argv[]){
                     }
                 }
             }
+            delete[] count_global;
 
             int num_found = pq.size();
             unsigned int *result = new unsigned int[pq.size()*2];
@@ -87,6 +89,7 @@ int main(int argc, char* argv[]){
                 result[pq.size()*2+1] = p.first;
             }
             writeOutput(fs, num_child[i], result, num_rec, num_found);
+            delete[] result;
             // cout<<i<<" : "<<num_child[i]<<"\n";
             // for(int i=0;i<num_found;i++){
             //     cout<<result[i*2]<<" : "<<result[i*2+1]<<"\n";
@@ -95,8 +98,11 @@ int main(int argc, char* argv[]){
             //     cout<<"NULL : NULL\n";
             // }
         }
+        delete[] adj[i];
         // printf("end in proc: %d for node: %d \n", rank, i);
     }
+    delete[] num_child;
+    delete[] adj;
 
     if(rank==0){
         // convertOutput(num_nodes, num_rec);

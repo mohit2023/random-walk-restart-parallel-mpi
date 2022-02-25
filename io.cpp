@@ -34,9 +34,9 @@ int **readGraph(std::string filename, int num_nodes, int num_edges, int* num_chi
         memcpy(buffer, buf+4*(d*2+1), 4);
         data[d*2+1] = convertEndian(buffer, islittleendian);
     }
+    delete[] buf;
 
     for(int d=0; d<num_edges; d++) {
-        int u=data[d*2];
         num_child[data[d*2]]++;
     }
 
@@ -52,6 +52,7 @@ int **readGraph(std::string filename, int num_nodes, int num_edges, int* num_chi
         adj[u][num_child[u]] = v;
         num_child[u]++;
     }
+    delete[] data;
 
     return adj;
 }
@@ -91,6 +92,7 @@ int **readGraph_basic(std::string filename, int num_nodes, int num_edges, int* n
         adj[u][num_child[u]] = v;
         num_child[u]++;
     }
+    delete[] data;
 
     return adj;
 }
