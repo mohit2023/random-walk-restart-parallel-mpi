@@ -36,8 +36,12 @@ int main(int argc, char* argv[]){
     int *num_child = new int[num_nodes];
     int **adj = readGraph(graph_file, num_nodes, num_edges, num_child, rank, size);
     // printf("read done in proc: %d \n", rank);
-
-    for(int i=num_nodes;i<num_nodes;i++) {
+    int *count = new int[num_nodes];
+    int* count_global;
+    if(rank==0) {
+        count_global = new int[num_nodes];
+    }
+    for(int i=0;i<num_nodes;i++) {
         int total = num_walks*num_child[i];
         int per_bucket = total/size;
         int extra = total%size;
@@ -47,19 +51,15 @@ int main(int argc, char* argv[]){
         end = end + (rank<extra ? 1 : 0);
         // printf("before in proc: %d for node: %d \n", rank, i);
 
-        int *count = new int[num_nodes]();
+        memset(count, 0, num_nodes);
         for(int j=start;j<end;j++) {
             int node_index = j/num_walks;
             int node = adj[i][node_index];
             randomWalk(node, adj, num_child, count, num_steps, random_generator, i);
         }
         // printf("random walk done in proc: %d for node: %d \n", rank, i);
-        int* count_global;
-        if(rank==0) {
-            count_global = new int[num_nodes];
-        }
+    
         MPI_Reduce(count, count_global, num_nodes, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-        delete[] count;
         if(rank==0) {
             count_global[i]=0;
             for(int k=0;k<num_child[i];k++) {
@@ -78,7 +78,6 @@ int main(int argc, char* argv[]){
                     }
                 }
             }
-            delete[] count_global;
 
             int num_found = pq.size();
             unsigned int *result = new unsigned int[pq.size()*2];
@@ -98,10 +97,12 @@ int main(int argc, char* argv[]){
             //     cout<<"NULL : NULL\n";
             // }
         }
-        delete[] adj[i];
         // printf("end in proc: %d for node: %d \n", rank, i);
     }
+    if(rank==0) delete[] count_global;
+    delete[] count;
     delete[] num_child;
+    for(int i=0;i<num_nodes;i++) delete[] adj[i];
     delete[] adj;
 
     if(rank==0){
