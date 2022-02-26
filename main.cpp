@@ -51,6 +51,7 @@ int main(int argc, char* argv[]){
 
     std:: fstream fs;
     if(rank==0) {
+        printf("%d \n", size);
         fs.open("output.dat", std::ios::out | std::ios::binary);
     }
 
