@@ -141,5 +141,9 @@ int main(int argc, char* argv[]){
 
     printf("Time taken by proc: %d is : %f \n", rank, duration);
 
+    if(rank==0) {
+        convertOutput(num_nodes, num_rec);
+    }
+
     return 0;
 }
