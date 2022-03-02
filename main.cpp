@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
 
     std:: fstream fs;
     if(rank==0) {
-        printf("%d \n", size);
+        // printf("%d \n", size);
         fs.open("output.dat", std::ios::out | std::ios::binary);
     }
 
@@ -142,9 +142,9 @@ int main(int argc, char* argv[]){
 
     printf("Time taken by proc: %d is : %f \n", rank, duration);
 
-    if(rank==0) {
-        convertOutput(num_nodes, num_rec);
-    }
+    // if(rank==0) {
+    //     convertOutput(num_nodes, num_rec);
+    // }
 
     return 0;
 }
