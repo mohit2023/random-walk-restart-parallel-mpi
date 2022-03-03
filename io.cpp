@@ -108,30 +108,91 @@ int **readGraph_basic(std::string filename, int num_nodes, int num_edges, int* n
     return adj;
 }
 
-void writeOutput(std::fstream& fs, unsigned int outdegree, unsigned int *result, int num_rec, int num_found) {
+void copy(unsigned char buf[], unsigned char buffer[], int& x) {
+    for(int i=0;i<4;i++){
+        buf[x++] = buf[i];
+    }
+}
+
+void writeOutput(MPI_File fs, unsigned int outdegree, unsigned int *result, int num_rec, int num_found, int nodeid) {
     int num = 1;
     bool islittleendian = false;
     if (*(char *)&num == 1) {
         islittleendian = true;
     }
 
+    int per = 2*num_rec+1;
+    unsigned char buf[per*4];
+    int x = 0;
     unsigned char buffer[4];
+    // if(nodeid==0) {
+    //     outdegree = 175;
+    //     char hex_string[20];
+    //     sprintf(hex_string, "%X", outdegree); //convert number to hex
+    //     cout<<hex_string<<"\n";
+    // }
     memcpy(buffer, (char*)&outdegree, sizeof(unsigned int));
     convertEndian(buffer, islittleendian);
-    fs.write((char *)buffer, 4);
+    // if(nodeid==0) {
+    //     printf("%x %x %x %x\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+    // }
+    copy(buf, buffer, x);
+    // fs.write((char *)buffer, 4);
     for(int i=0;i<num_found;i++) {
         unsigned int node = result[i*2];
         memcpy(buffer, (char*)&node, sizeof(unsigned int));
         convertEndian(buffer, islittleendian);
-        fs.write((char *)buffer, 4);
+        copy(buf, buffer, x);
+        // fs.write((char *)buffer, 4);
         unsigned int infs = result[i*2+1];
         memcpy(buffer, (char*)&infs, sizeof(unsigned int));
         convertEndian(buffer, islittleendian);
+        copy(buf, buffer, x);
+        // fs.write((char *)buffer, 4);
+    }
+    buffer[0]='N';
+    buffer[1]='U';
+    buffer[2]='L';
+    buffer[3]='L';
+    for(int i=num_found;i<num_rec;i++) {
+        copy(buf, buffer, x);
+        copy(buf, buffer, x);
+        // fs.write("NULLNULL", 8);
+    }
+    MPI_File_write_at(fs, nodeid*per*4, buf, per*4, MPI_UNSIGNED_CHAR, MPI_STATUS_IGNORE);
+}
+
+void writeOutput_basic(std::fstream& fs, unsigned int outdegree, unsigned int *result, int num_rec, int num_found, int nodeid) {
+    int num = 1;
+    bool islittleendian = false;
+    if (*(char *)&num == 1) {
+        islittleendian = true;
+    }
+    
+    int per = 2*num_rec+1;
+    fs.seekp(nodeid*per*4);
+    unsigned char buffer[4];
+    memcpy(buffer, (char*)&outdegree, 4);
+    convertEndian(buffer, islittleendian);
+    fs.write((char *)buffer, 4);
+    for(int i=0;i<num_rec;i++) {
+        unsigned int node = i<num_found?result[i*2]:1314212940;
+        memcpy(buffer, (char*)&node, 4);
+        convertEndian(buffer, islittleendian);
+        fs.write((char *)buffer, 4);
+        unsigned int infs = i<num_found?result[i*2+1]:1314212940;
+        memcpy(buffer, (char*)&infs, 4);
+        convertEndian(buffer, islittleendian);
         fs.write((char *)buffer, 4);
     }
-    for(int i=num_found;i<num_rec;i++) {
-        fs.write("NULLNULL", 8);
-    }
+
+    // unsigned int null_number = 1314212940;
+    // memcpy(buffer, (char*)&null_number, 4);
+    // convertEndian(buffer, islittleendian);
+    // for(int i=num_found;i<num_rec;i++) {
+    //     fs.write((char *)buffer, 4);
+    //     fs.write((char *)buffer, 4);
+    // }
 }
 
 

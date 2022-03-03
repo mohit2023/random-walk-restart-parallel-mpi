@@ -49,102 +49,86 @@ int main(int argc, char* argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    std:: fstream fs;
-    if(rank==0) {
-        // printf("%d \n", size);
-        fs.open("output.dat", std::ios::out | std::ios::binary);
-    }
 
     int *num_child = new int[num_nodes]();
     int **adj = readGraph(graph_file, num_nodes, num_edges, num_child, rank, size);
     // printf("read done in proc: %d \n", rank);
-
-    int *count = new int[num_nodes];
-    int *count_global;
-    if(rank==0) {
-        count_global = new int[num_nodes];
+    vector<pair<int,int>> sn(num_nodes);
+    for(int i=0;i<num_nodes;i++){
+        sn[i] = {num_child[i],i};
     }
-    for(int i=0;i<num_nodes;i++) {
-        int total = num_walks*num_child[i];
-        int per_bucket = total/size;
-        int extra = total%size;
-        int start = per_bucket*rank;
-        start = start + (rank<extra ? rank : extra);
-        int end = start + per_bucket;
-        end = end + (rank<extra ? 1 : 0);
-        // printf("before in proc: %d for node: %d \n", rank, i);
+    sort(sn.begin(),sn.end());
+    int *count = new int[num_nodes];
 
-        memset(count, 0, num_nodes*sizeof(int));
-        for(int j=start;j<end;j++) {
-            int node_index = j/num_walks;
-            int node = adj[i][node_index];
-            randomWalk(node, adj, num_child, count, num_steps, random_generator, i);
-        }
-        // printf("random walk done in proc: %d for node: %d \n", rank, i);
+    fstream fs("output.dat", std::ios::out | std::ios::binary);
+    if(rank==0){
+        fs.seekp(num_nodes*4*(2*num_rec+1));
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
     
-        MPI_Reduce(count, count_global, num_nodes, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-        if(rank==0) {
-            count_global[i]=0;
-            for(int k=0;k<num_child[i];k++) {
-                count_global[adj[i][k]]=0;
+    for(int i=rank;i<num_nodes;i+=size) {
+        int nodeid = sn[i].second;
+        memset(count, 0, num_nodes*sizeof(int));
+        for(int j=0;j<num_child[nodeid];j++) {
+            for(int k=0;k<num_walks;k++){
+                randomWalk(adj[nodeid][j], adj, num_child, count, num_steps, random_generator, nodeid);
             }
-
-            priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
-            for(int k=0;k<num_nodes;k++) {
-                if(count_global[k]!=0) {
-                    if(pq.size() < num_rec) {
-                        pq.push({count_global[k],k});
-                    }
-                    else if(pq.top().first < count_global[k]) {
-                        pq.pop();
-                        pq.push({count_global[k],k});
-                    }
+        }
+        count[nodeid]=0;
+        for(int k=0;k<num_child[nodeid];k++) {
+            count[adj[nodeid][k]]=0;
+        }
+        
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
+        for(int k=0;k<num_nodes;k++) {
+            if(count[k]!=0) {
+                if(pq.size() < num_rec) {
+                    pq.push({count[k],-k});
+                }
+                else if(pq.top().first < count[k]) {
+                    pq.pop();
+                    pq.push({count[k],-k});
                 }
             }
-
-            int num_found = pq.size();
-            unsigned int *result = new unsigned int[pq.size()*2];
-            while(!pq.empty()) {
-                std::pair<int,int> p = pq.top();
-                pq.pop();
-                result[pq.size()*2] = p.second;
-                result[pq.size()*2+1] = p.first;
-            }
-            writeOutput(fs, num_child[i], result, num_rec, num_found);
-            // cout<<i<<" : "<<num_child[i]<<"\n";
-            // for(int i=0;i<num_found;i++){
-            //     cout<<result[i*2]<<" : "<<result[i*2+1]<<"\n";
-            // }
-            // for(int i=num_found;i<num_rec;i++){
-            //     cout<<"NULL : NULL\n";
-            // }
-            delete[] result;
         }
+        int num_found = pq.size();
+        unsigned int *result = new unsigned int[pq.size()*2];
+        while(!pq.empty()) {
+            std::pair<int,int> p = pq.top();
+            pq.pop();
+            result[pq.size()*2] = -p.second;
+            result[pq.size()*2+1] = p.first;
+        }
+        writeOutput_basic(fs, num_child[nodeid], result, num_rec, num_found, nodeid);
+        delete[] result;
         // printf("end in proc: %d for node: %d \n", rank, i);
     }
-    if(rank==0) delete[] count_global;
+
     delete[] count;
     delete[] num_child;
     for(int i=0;i<num_nodes;i++) delete[] adj[i];
     delete[] adj;
 
-    if(rank==0){
-        // convertOutput(num_nodes, num_rec);
-        fs.close();
-    }
     // print_random(rank, num_nodes, random_generator);
+    // if (rank != 0) {
+    //     int number = -1;
+    //     MPI_Send(&number, 1, MPI_INT, 0, num_nodes, MPI_COMM_WORLD);
+    // } else {
+    //     for(int i=1;i<size;i++) {
+    //         int number;
+    //         MPI_Recv(&number, 1, MPI_INT, i, num_nodes, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //     }
+    // }
+
+    MPI_Barrier(MPI_COMM_WORLD);
     
     MPI_Finalize();
-
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
     double duration = (1e-6 * (std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin)).count());
 
     printf("Time taken by proc: %d is : %f \n", rank, duration);
-
-    // if(rank==0) {
-    //     convertOutput(num_nodes, num_rec);
-    // }
+    fs.close();
 
     return 0;
 }
