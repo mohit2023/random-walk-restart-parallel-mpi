@@ -1,0 +1,137 @@
+Data 8717_31525
+
+1 
+Time taken by proc: 0 is : 59004.049205 
+
+
+16 
+Time taken by proc: 15 is : 7725.360848 
+Time taken by proc: 10 is : 7797.051978 
+Time taken by proc: 13 is : 7791.636014 
+Time taken by proc: 14 is : 7792.729447 
+Time taken by proc: 12 is : 7799.344505 
+Time taken by proc: 0 is : 7906.511952 
+Time taken by proc: 2 is : 7905.913114 
+Time taken by proc: 5 is : 7902.845934 
+Time taken by proc: 11 is : 7887.822512 
+Time taken by proc: 3 is : 7907.704960 
+Time taken by proc: 6 is : 7901.822404 
+Time taken by proc: 4 is : 7909.479960 
+Time taken by proc: 8 is : 7901.905842 
+Time taken by proc: 7 is : 7903.218599 
+Time taken by proc: 9 is : 7901.466411 
+Time taken by proc: 1 is : 7915.117744 
+
+
+2 
+Time taken by proc: 1 is : 30060.430146 
+Time taken by proc: 0 is : 30065.309216 
+ 
+
+4 
+Time taken by proc: 0 is : 15507.295618 
+Time taken by proc: 2 is : 15507.661547 
+Time taken by proc: 3 is : 15503.952490 
+Time taken by proc: 1 is : 15511.996120 
+
+
+8 
+Time taken by proc: 1 is : 9225.019811 
+Time taken by proc: 4 is : 9223.717101 
+Time taken by proc: 7 is : 9217.419129 
+Time taken by proc: 2 is : 9302.188034 
+Time taken by proc: 5 is : 9300.869416 
+Time taken by proc: 0 is : 9304.383594 
+Time taken by proc: 3 is : 9304.778558 
+Time taken by proc: 6 is : 9303.486042 
+ 
+
+
+Data 81867_545671
+
+1 
+Time taken by proc: 0 is : 2273169.980348  
+
+16 
+Time taken by proc: 15 is : 162837.461324 
+Time taken by proc: 13 is : 162837.680068 
+Time taken by proc: 12 is : 162838.504924 
+Time taken by proc: 14 is : 162841.418610 
+Time taken by proc: 1 is : 162958.595503 
+Time taken by proc: 3 is : 162965.918519 
+Time taken by proc: 5 is : 162979.183226 
+Time taken by proc: 2 is : 162975.518727 
+Time taken by proc: 4 is : 162987.913372 
+Time taken by proc: 10 is : 162990.157392 
+Time taken by proc: 7 is : 163005.878193 
+Time taken by proc: 0 is : 163014.817086 
+Time taken by proc: 11 is : 163068.981203 
+Time taken by proc: 9 is : 163073.227108 
+Time taken by proc: 8 is : 163082.001274 
+Time taken by proc: 6 is : 163121.812374 
+
+2 
+Time taken by proc: 1 is : 1184181.344195 
+Time taken by proc: 0 is : 1184296.550036 
+
+4 
+Time taken by proc: 1 is : 625627.125605 
+Time taken by proc: 2 is : 625705.021495 
+Time taken by proc: 3 is : 625701.454255 
+Time taken by proc: 0 is : 625707.445855  
+
+8 
+Time taken by proc: 1 is : 318678.472654 
+Time taken by proc: 3 is : 318608.032700 
+Time taken by proc: 2 is : 318688.214180 
+Time taken by proc: 5 is : 318612.543571 
+Time taken by proc: 7 is : 318627.699350 
+Time taken by proc: 0 is : 318714.128656 
+Time taken by proc: 4 is : 318637.973759 
+Time taken by proc: 6 is : 318668.623383 
+
+
+Data 82168_870161
+
+1 
+Time taken by proc: 0 is : 5620543.239471 
+
+16 
+Time taken by proc: 13 is : 526351.536801 
+Time taken by proc: 12 is : 526410.802986 
+Time taken by proc: 11 is : 526407.217959 
+Time taken by proc: 10 is : 526379.905865 
+Time taken by proc: 6 is : 526404.183707 
+Time taken by proc: 1 is : 526410.079109 
+Time taken by proc: 3 is : 526407.958906 
+Time taken by proc: 2 is : 526410.007534 
+Time taken by proc: 14 is : 526385.548334 
+Time taken by proc: 4 is : 526402.422181 
+Time taken by proc: 9 is : 526380.594133 
+Time taken by proc: 7 is : 526401.498454 
+Time taken by proc: 15 is : 526388.419238 
+Time taken by proc: 8 is : 526390.462116 
+Time taken by proc: 5 is : 526407.607930 
+Time taken by proc: 0 is : 526440.395669 
+
+
+2 
+Time taken by proc: 0 is : 5806792.963888 
+Time taken by proc: 1 is : 5806832.769255 
+
+4 
+Time taken by proc: 2 is : 2705367.761610 
+Time taken by proc: 3 is : 2705421.174753 
+Time taken by proc: 0 is : 2705541.084240 
+Time taken by proc: 1 is : 2705546.724253 
+
+8 
+Time taken by proc: 2 is : 1209126.618979 
+Time taken by proc: 3 is : 1209126.029470 
+Time taken by proc: 7 is : 1209133.570433 
+Time taken by proc: 0 is : 1209153.434020 
+Time taken by proc: 5 is : 1209112.543317 
+Time taken by proc: 4 is : 1209130.044201 
+Time taken by proc: 6 is : 1209113.415423 
+Time taken by proc: 1 is : 1209137.696602 
+
